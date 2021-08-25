@@ -1,168 +1,3 @@
-function email_test(input) {
-	return !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/.test(input.value);
-}
-// Dynamic Adapt v.1
-// HTML data-da="where(uniq class name),when(breakpoint),position(digi)"
-// e.x. data-da=".item,992,2"
-// Andrikanych Yevhen 2020
-// https://www.youtube.com/c/freelancerlifestyle
-
-"use strict";
-
-
-function DynamicAdapt(type) {
-	this.type = type;
-}
-
-DynamicAdapt.prototype.init = function () {
-	const _this = this;
-	// массив объектов
-	this.оbjects = [];
-	this.daClassname = "_dynamic_adapt_";
-	// массив DOM-элементов
-	this.nodes = document.querySelectorAll("[data-da]");
-
-	// наполнение оbjects объктами
-	for (let i = 0; i < this.nodes.length; i++) {
-		const node = this.nodes[i];
-		const data = node.dataset.da.trim();
-		const dataArray = data.split(",");
-		const оbject = {};
-		оbject.element = node;
-		оbject.parent = node.parentNode;
-		оbject.destination = document.querySelector(dataArray[0].trim());
-		оbject.breakpoint = dataArray[1] ? dataArray[1].trim() : "767";
-		оbject.place = dataArray[2] ? dataArray[2].trim() : "last";
-		оbject.index = this.indexInParent(оbject.parent, оbject.element);
-		this.оbjects.push(оbject);
-	}
-
-	this.arraySort(this.оbjects);
-
-	// массив уникальных медиа-запросов
-	this.mediaQueries = Array.prototype.map.call(this.оbjects, function (item) {
-		return '(' + this.type + "-width: " + item.breakpoint + "px)," + item.breakpoint;
-	}, this);
-	this.mediaQueries = Array.prototype.filter.call(this.mediaQueries, function (item, index, self) {
-		return Array.prototype.indexOf.call(self, item) === index;
-	});
-
-	// навешивание слушателя на медиа-запрос
-	// и вызов обработчика при первом запуске
-	for (let i = 0; i < this.mediaQueries.length; i++) {
-		const media = this.mediaQueries[i];
-		const mediaSplit = String.prototype.split.call(media, ',');
-		const matchMedia = window.matchMedia(mediaSplit[0]);
-		const mediaBreakpoint = mediaSplit[1];
-
-		// массив объектов с подходящим брейкпоинтом
-		const оbjectsFilter = Array.prototype.filter.call(this.оbjects, function (item) {
-			return item.breakpoint === mediaBreakpoint;
-		});
-		matchMedia.addListener(function () {
-			_this.mediaHandler(matchMedia, оbjectsFilter);
-		});
-		this.mediaHandler(matchMedia, оbjectsFilter);
-	}
-};
-
-DynamicAdapt.prototype.mediaHandler = function (matchMedia, оbjects) {
-	if (matchMedia.matches) {
-		for (let i = 0; i < оbjects.length; i++) {
-			const оbject = оbjects[i];
-			оbject.index = this.indexInParent(оbject.parent, оbject.element);
-			this.moveTo(оbject.place, оbject.element, оbject.destination);
-		}
-	} else {
-		for (let i = 0; i < оbjects.length; i++) {
-			const оbject = оbjects[i];
-			if (оbject.element.classList.contains(this.daClassname)) {
-				this.moveBack(оbject.parent, оbject.element, оbject.index);
-			}
-		}
-	}
-};
-
-// Функция перемещения
-DynamicAdapt.prototype.moveTo = function (place, element, destination) {
-	element.classList.add(this.daClassname);
-	if (place === 'last' || place >= destination.children.length) {
-		destination.insertAdjacentElement('beforeend', element);
-		return;
-	}
-	if (place === 'first') {
-		destination.insertAdjacentElement('afterbegin', element);
-		return;
-	}
-	destination.children[place].insertAdjacentElement('beforebegin', element);
-}
-
-// Функция возврата
-DynamicAdapt.prototype.moveBack = function (parent, element, index) {
-	element.classList.remove(this.daClassname);
-	if (parent.children[index] !== undefined) {
-		parent.children[index].insertAdjacentElement('beforebegin', element);
-	} else {
-		parent.insertAdjacentElement('beforeend', element);
-	}
-}
-
-// Функция получения индекса внутри родителя
-DynamicAdapt.prototype.indexInParent = function (parent, element) {
-	const array = Array.prototype.slice.call(parent.children);
-	return Array.prototype.indexOf.call(array, element);
-};
-
-// Функция сортировки массива по breakpoint и place 
-// по возрастанию для this.type = min
-// по убыванию для this.type = max
-DynamicAdapt.prototype.arraySort = function (arr) {
-	if (this.type === "min") {
-		Array.prototype.sort.call(arr, function (a, b) {
-			if (a.breakpoint === b.breakpoint) {
-				if (a.place === b.place) {
-					return 0;
-				}
-
-				if (a.place === "first" || b.place === "last") {
-					return -1;
-				}
-
-				if (a.place === "last" || b.place === "first") {
-					return 1;
-				}
-
-				return a.place - b.place;
-			}
-
-			return a.breakpoint - b.breakpoint;
-		});
-	} else {
-		Array.prototype.sort.call(arr, function (a, b) {
-			if (a.breakpoint === b.breakpoint) {
-				if (a.place === b.place) {
-					return 0;
-				}
-
-				if (a.place === "first" || b.place === "last") {
-					return 1;
-				}
-
-				if (a.place === "last" || b.place === "first") {
-					return -1;
-				}
-
-				return b.place - a.place;
-			}
-
-			return b.breakpoint - a.breakpoint;
-		});
-		return;
-	}
-};
-
-const da = new DynamicAdapt("max");
-da.init();
 //BildSlider
 let sliders = document.querySelectorAll('._swiper');
 if (sliders) {
@@ -196,6 +31,7 @@ if (sliders) {
 	}
 	sliders_bild_callback();
 }
+
 function sliders_bild_callback(params) { }
 
 let sliderScrollItems = document.querySelectorAll('._swiper_scroll');
@@ -225,93 +61,105 @@ if (sliderScrollItems.length > 0) {
 
 function sliders_bild_callback(params) { }
 
-if (document.querySelector('.slider-main__body')) {
-	new Swiper('.slider-main__body', {
+
+if (document.querySelector('.page-body-slider__body')) {
+	let slider_about = new Swiper('.page-body-slider__body', {
 		observer: true,
 		observeParents: true,
 		slidesPerView: 1,
-		spaceBetween: 32,
-		watchOverflow: true,
+		spaceBetween: 35,
+		autoHeight: true,
 		speed: 800,
 		loop: true,
-		loopAdditionalSlides: 5,
-		preloadImages: false,
 		parallax: true,
-		// Dotts
+		autoplay: {
+			delay: 3000,
+			disableOnInteraction: true,
+		},
 		pagination: {
-			el: '.controls-slider-main__dotts',
+			el: '.slider-page__controls-dotts',
 			clickable: true,
 		},
 		// Arrows
 		navigation: {
-			nextEl: '.slider-main .slider-arrow_next',
-			prevEl: '.slider-main .slider-arrow_prev',
+			nextEl: '.slider-page__arrow_next',
+			prevEl: '.slider-page__arrow_prev',
+		},
+		on: {
+			lazyImageReady: function () {
+				ibg();
+			},
 		}
 	});
 }
-
 if (document.querySelector('.slider-rooms__body')) {
-	new Swiper('.slider-rooms__body', {
+	let slider_about = new Swiper('.slider-rooms__body ', {
 		observer: true,
 		observeParents: true,
 		slidesPerView: 'auto',
 		spaceBetween: 24,
+		autoHeight: true,
 		speed: 800,
 		loop: true,
-		watchOverflow: true,
-		loopAdditionalSlides: 5,
-		preloadImages: false,
 		parallax: true,
-		// Dotts
 		pagination: {
-			el: '.slider-rooms__dotts',
+			el: '.slider-rooms__paggination',
 			clickable: true,
 		},
 		// Arrows
 		navigation: {
-			nextEl: '.slider-rooms .slider-arrow_next',
-			prevEl: '.slider-rooms .slider-arrow_prev',
+			nextEl: '.slider-rooms__arrow_next',
+			prevEl: '.slider-rooms__arrow_prev',
+		},
+		on: {
+			lazyImageReady: function () {
+				ibg();
+			},
 		}
 	});
 }
-
 if (document.querySelector('.slider-tips__body')) {
-	new Swiper('.slider-tips__body', {
+	let slider_about = new Swiper('.slider-tips__body ', {
 		observer: true,
 		observeParents: true,
 		slidesPerView: 3,
 		spaceBetween: 32,
+		autoHeight: true,
 		speed: 800,
 		loop: true,
-		watchOverflow: true,
-		// Dotts
 		pagination: {
-			el: '.slider-tips__dotts',
+			el: '.slider-tips__pagination',
 			clickable: true,
 		},
 		// Arrows
 		navigation: {
-			nextEl: '.slider-tips .slider-arrow_next',
-			prevEl: '.slider-tips .slider-arrow_prev',
+			nextEl: '.slider-tips__arrow_next',
+			prevEl: '.slider-tips__arrow_prev',
+		},
+		on: { 
+			lazyImageReady: function () {
+				ibg();
+			},
 		},
 		breakpoints: {
-			// when window width is >= 320px
 			320: {
 				slidesPerView: 1.1,
-				spaceBetween: 15
+				spaceBetween: 15,
 			},
-			// when window width is >= 768px
-			768: {
+			767: {
 				slidesPerView: 2,
-				spaceBetween: 20
+				spaceBetween: 15,
 			},
-			// when window width is >= 992px
 			992: {
 				slidesPerView: 3,
-				spaceBetween: 32
+				spaceBetween: 32,
 			}
-		}
-	})
+		},
+	});
+}
+
+function email_test(input) {
+	return !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/.test(input.value);
 }
 var ua = window.navigator.userAgent;
 var msie = ua.indexOf("MSIE ");
@@ -468,25 +316,7 @@ if (title) {
 }
 //=================
 //Tabs
-let tabs = document.querySelectorAll("._tabs");
-for (let index = 0; index < tabs.length; index++) {
-	let tab = tabs[index];
-	let tabs_items = tab.querySelectorAll("._tabs-item");
-	let tabs_blocks = tab.querySelectorAll("._tabs-block");
-	for (let index = 0; index < tabs_items.length; index++) {
-		let tabs_item = tabs_items[index];
-		tabs_item.addEventListener("click", function (e) {
-			for (let index = 0; index < tabs_items.length; index++) {
-				let tabs_item = tabs_items[index];
-				tabs_item.classList.remove('_active');
-				tabs_blocks[index].classList.remove('_active');
-			}
-			tabs_item.classList.add('_active');
-			tabs_blocks[index].classList.add('_active');
-			e.preventDefault();
-		});
-	}
-}
+
 //=================
 /*
 Для родителя слойлеров пишем атрибут data-spollers
@@ -655,128 +485,10 @@ function digi(str) {
 	return r;
 }
 //=================
-//DiGiAnimate
-function digi_animate(digi_animate) {
-	if (digi_animate.length > 0) {
-		for (let index = 0; index < digi_animate.length; index++) {
-			const el = digi_animate[index];
-			const el_to = parseInt(el.innerHTML.replace(' ', ''));
-			if (!el.classList.contains('_done')) {
-				digi_animate_value(el, 0, el_to, 1500);
-			}
-		}
-	}
-}
-function digi_animate_value(el, start, end, duration) {
-	var obj = el;
-	var range = end - start;
-	// no timer shorter than 50ms (not really visible any way)
-	var minTimer = 50;
-	// calc step time to show all interediate values
-	var stepTime = Math.abs(Math.floor(duration / range));
 
-	// never go below minTimer
-	stepTime = Math.max(stepTime, minTimer);
-
-	// get current time and calculate desired end time
-	var startTime = new Date().getTime();
-	var endTime = startTime + duration;
-	var timer;
-
-	function run() {
-		var now = new Date().getTime();
-		var remaining = Math.max((endTime - now) / duration, 0);
-		var value = Math.round(end - (remaining * range));
-		obj.innerHTML = digi(value);
-		if (value == end) {
-			clearInterval(timer);
-		}
-	}
-
-	timer = setInterval(run, stepTime);
-	run();
-
-	el.classList.add('_done');
-}
 //=================
 //Popups
-let popup_link = document.querySelectorAll('._popup-link');
-let popups = document.querySelectorAll('.popup');
-for (let index = 0; index < popup_link.length; index++) {
-	const el = popup_link[index];
-	el.addEventListener('click', function (e) {
-		if (unlock) {
-			let item = el.getAttribute('href').replace('#', '');
-			let video = el.getAttribute('data-video');
-			popup_open(item, video);
-		}
-		e.preventDefault();
-	})
-}
-for (let index = 0; index < popups.length; index++) {
-	const popup = popups[index];
-	popup.addEventListener("click", function (e) {
-		if (!e.target.closest('.popup__body')) {
-			popup_close(e.target.closest('.popup'));
-		}
-	});
-}
-function popup_open(item, video = '') {
-	let activePopup = document.querySelectorAll('.popup._active');
-	if (activePopup.length > 0) {
-		popup_close('', false);
-	}
-	let curent_popup = document.querySelector('.popup_' + item);
-	if (curent_popup && unlock) {
-		if (video != '' && video != null) {
-			let popup_video = document.querySelector('.popup_video');
-			popup_video.querySelector('.popup__video').innerHTML = '<iframe src="https://www.youtube.com/embed/' + video + '?autoplay=1"  allow="autoplay; encrypted-media" allowfullscreen></iframe>';
-		}
-		if (!document.querySelector('.menu__body._active')) {
-			body_lock_add(500);
-		}
-		curent_popup.classList.add('_active');
-		history.pushState('', '', '#' + item);
-	}
-}
-function popup_close(item, bodyUnlock = true) {
-	if (unlock) {
-		if (!item) {
-			for (let index = 0; index < popups.length; index++) {
-				const popup = popups[index];
-				let video = popup.querySelector('.popup__video');
-				if (video) {
-					video.innerHTML = '';
-				}
-				popup.classList.remove('_active');
-			}
-		} else {
-			let video = item.querySelector('.popup__video');
-			if (video) {
-				video.innerHTML = '';
-			}
-			item.classList.remove('_active');
-		}
-		if (!document.querySelector('.menu__body._active') && bodyUnlock) {
-			body_lock_remove(500);
-		}
-		history.pushState('', '', window.location.href.split('#')[0]);
-	}
-}
-let popup_close_icon = document.querySelectorAll('.popup__close,._popup-close');
-if (popup_close_icon) {
-	for (let index = 0; index < popup_close_icon.length; index++) {
-		const el = popup_close_icon[index];
-		el.addEventListener('click', function () {
-			popup_close(el.closest('.popup'));
-		})
-	}
-}
-document.addEventListener('keydown', function (e) {
-	if (e.code === 'Escape') {
-		popup_close();
-	}
-});
+
 
 //=================
 //SlideToggle
@@ -863,265 +575,31 @@ function _is_hidden(el) {
 	return (el.offsetParent === null)
 }
 // ShowMore Beta ========================
-let moreBlocks = document.querySelectorAll('._more-block');
-if (moreBlocks.length > 0) {
-	let wrapper = document.querySelector('.wrapper');
-	for (let index = 0; index < moreBlocks.length; index++) {
-		const moreBlock = moreBlocks[index];
-		let items = moreBlock.querySelectorAll('._more-item');
-		if (items.length > 0) {
-			let itemsMore = moreBlock.querySelector('._more-link');
-			let itemsContent = moreBlock.querySelector('._more-content');
-			let itemsView = itemsContent.getAttribute('data-view');
-			if (getComputedStyle(itemsContent).getPropertyValue("transition-duration") === '0s') {
-				itemsContent.style.cssText = "transition-duration: 1ms";
-			}
-			itemsMore.addEventListener("click", function (e) {
-				if (itemsMore.classList.contains('_active')) {
-					setSize();
-				} else {
-					setSize('start');
-				}
-				itemsMore.classList.toggle('_active');
-				e.preventDefault();
-			});
 
-			let isScrollStart;
-			function setSize(type) {
-				let resultHeight;
-				let itemsContentHeight = 0;
-				let itemsContentStartHeight = 0;
-
-				for (let index = 0; index < items.length; index++) {
-					if (index < itemsView) {
-						itemsContentHeight += items[index].offsetHeight;
-					}
-					itemsContentStartHeight += items[index].offsetHeight;
-				}
-				resultHeight = (type === 'start') ? itemsContentStartHeight : itemsContentHeight;
-				isScrollStart = window.innerWidth - wrapper.offsetWidth;
-				itemsContent.style.height = `${resultHeight}px`;
-			}
-
-			itemsContent.addEventListener("transitionend", updateSize, false);
-
-			function updateSize() {
-				let isScrollEnd = window.innerWidth - wrapper.offsetWidth;
-				if (isScrollStart === 0 && isScrollEnd > 0 || isScrollStart > 0 && isScrollEnd === 0) {
-					if (itemsMore.classList.contains('_active')) {
-						setSize('start');
-					} else {
-						setSize();
-					}
-				}
-			}
-			window.addEventListener("resize", function (e) {
-				if (!itemsMore.classList.contains('_active')) {
-					setSize();
-				} else {
-					setSize('start');
-				}
-			});
-			setSize();
-		}
-	}
-}
 //==RATING======================================
-const ratings = document.querySelectorAll('.rating');
-if (ratings.length > 0) {
-	initRatings();
-}
-// Основная функция
-function initRatings() {
-	let ratingActive, ratingValue;
-	// "Бегаем" по всем рейтингам на странице
-	for (let index = 0; index < ratings.length; index++) {
-		const rating = ratings[index];
-		initRating(rating);
-	}
 
-	// Инициализируем конкретный рейтинг
-	function initRating(rating) {
-		initRatingVars(rating);
-
-		setRatingActiveWidth();
-
-		if (rating.classList.contains('rating_set')) {
-			setRating(rating);
-		}
-	}
-
-	// Инициализайция переменных
-	function initRatingVars(rating) {
-		ratingActive = rating.querySelector('.rating__active');
-		ratingValue = rating.querySelector('.rating__value');
-	}
-	// Изменяем ширину активных звезд
-	function setRatingActiveWidth(index = ratingValue.innerHTML) {
-		const ratingActiveWidth = index / 0.05;
-		ratingActive.style.width = `${ratingActiveWidth}%`;
-	}
-	// Возможность указать оценку 
-	function setRating(rating) {
-		const ratingItems = rating.querySelectorAll('.rating__item');
-		for (let index = 0; index < ratingItems.length; index++) {
-			const ratingItem = ratingItems[index];
-			ratingItem.addEventListener("mouseenter", function (e) {
-				// Обновление переменных
-				initRatingVars(rating);
-				// Обновление активных звезд
-				setRatingActiveWidth(ratingItem.value);
-			});
-			ratingItem.addEventListener("mouseleave", function (e) {
-				// Обновление активных звезд
-				setRatingActiveWidth();
-			});
-			ratingItem.addEventListener("click", function (e) {
-				// Обновление переменных
-				initRatingVars(rating);
-
-				if (rating.dataset.ajax) {
-					// "Отправить" на сервер
-					setRatingValue(ratingItem.value, rating);
-				} else {
-					// Отобразить указанную оцнку
-					ratingValue.innerHTML = index + 1;
-					setRatingActiveWidth();
-				}
-			});
-		}
-	}
-
-	async function setRatingValue(value, rating) {
-		if (!rating.classList.contains('rating_sending')) {
-			rating.classList.add('rating_sending');
-
-			// Отправика данных (value) на сервер
-			let response = await fetch('rating.json', {
-				method: 'GET',
-
-				//body: JSON.stringify({
-				//	userRating: value
-				//}),
-				//headers: {
-				//	'content-type': 'application/json'
-				//}
-
-			});
-			if (response.ok) {
-				const result = await response.json();
-
-				// Получаем новый рейтинг
-				const newRating = result.newRating;
-
-				// Вывод нового среднего результата
-				ratingValue.innerHTML = newRating;
-
-				// Обновление активных звезд
-				setRatingActiveWidth();
-
-				rating.classList.remove('rating_sending');
-			} else {
-				alert("Ошибка");
-
-				rating.classList.remove('rating_sending');
-			}
-		}
-	}
-}
 //========================================
 //Animate
-function animate({ timing, draw, duration }) {
-	let start = performance.now();
-	requestAnimationFrame(function animate(time) {
-		// timeFraction изменяется от 0 до 1
-		let timeFraction = (time - start) / duration;
-		if (timeFraction > 1) timeFraction = 1;
-
-		// вычисление текущего состояния анимации
-		let progress = timing(timeFraction);
-
-		draw(progress); // отрисовать её
-
-		if (timeFraction < 1) {
-			requestAnimationFrame(animate);
-		}
-
-	});
-}
-function makeEaseOut(timing) {
-	return function (timeFraction) {
-		return 1 - timing(1 - timeFraction);
-	}
-}
-function makeEaseInOut(timing) {
-	return function (timeFraction) {
-		if (timeFraction < .5)
-			return timing(2 * timeFraction) / 2;
-		else
-			return (2 - timing(2 * (1 - timeFraction))) / 2;
-	}
-}
-function quad(timeFraction) {
-	return Math.pow(timeFraction, 2)
-}
-function circ(timeFraction) {
-	return 1 - Math.sin(Math.acos(timeFraction));
-}
-/*
-animate({
-	duration: 1000,
-	timing: makeEaseOut(quad),
-	draw(progress) {
-		window.scroll(0, start_position + 400 * progress);
-	}
-});*/
 
 //Полифилы
-(function () {
-	// проверяем поддержку
-	if (!Element.prototype.closest) {
-		// реализуем
-		Element.prototype.closest = function (css) {
-			var node = this;
-			while (node) {
-				if (node.matches(css)) return node;
-				else node = node.parentElement;
-			}
-			return null;
-		};
-	}
-})();
-(function () {
-	// проверяем поддержку
-	if (!Element.prototype.matches) {
-		// определяем свойство
-		Element.prototype.matches = Element.prototype.matchesSelector ||
-			Element.prototype.webkitMatchesSelector ||
-			Element.prototype.mozMatchesSelector ||
-			Element.prototype.msMatchesSelector;
-	}
-})();
 
-window.onload = function () {
-	document.addEventListener("click", documentActions);
-
-	// Actions (делегирование события click)
-	function documentActions(e) {
-		const targetElement = e.target;
-		if (window.innerWidth > 768 && isMobile.any()) {
-			if (targetElement.classList.contains('menu__arrow')) {
-				targetElement.closest('.menu__item').classList.toggle('_hover');
-			}
-			if (!targetElement.closest('.menu__item') && document.querySelectorAll('.menu__item._hover').length > 0) {
-				_removeClasses(document.querySelectorAll('.menu__item._hover'), "_hover");
-			}
-		}
-		if (targetElement.classList.contains('search-form__icon')) {
-			document.querySelector('.search-form').classList.toggle('_active');
-		} else if (!targetElement.closest('.search-form') && document.querySelector('.search-form._active')) {
-			document.querySelector('.search-form').classList.remove('_active');
-		}
+window.onload= function () {
+    document.addEventListener("click", documentActions);
+    function documentActions(e) {
+        const targetElement = e.target;
+        if (window.innerWidth > 768 && isMobile.any()) {
+            if (targetElement.classList.contains('menu__arrow')) {
+                targetElement.closest('.menu__item').classList.toggle('_hover');
+            }
+            if(!targetElement.closest('.menu__item') && document.querySelectorAll('.menu__item._hover').length > 0){
+                _removeClasses(document.querySelectorAll('.menu__item._hover'), "_hover")
+            }
+        }
+        if (targetElement.classList.contains('search-header-button')) {
+            document.querySelector('.search-header').classList.toggle('_active');
+        } else if (!targetElement.closest('.search-header') && document.querySelectorAll('.search-header._active').length > 0) {
+            _removeClasses(document.querySelectorAll('.search-header._active'), "_active")
+        }
 		if (targetElement.classList.contains('products__more')) {
 			getProducts(targetElement);
 			e.preventDefault();
@@ -1131,26 +609,24 @@ window.onload = function () {
 			addToCart(targetElement, productId);
 			e.preventDefault();
 		}
-
-		if (targetElement.classList.contains('cart-header__icon') || targetElement.closest('.cart-header__icon')) {
-			if (document.querySelector('.cart-list').children.length > 0) {
-				document.querySelector('.cart-header').classList.toggle('_active');
+		if (targetElement.classList.contains('cart-header__button') || targetElement.closest('.cart-header__button')) {
+			if (document.querySelector('.cart-header__list').children.length > 0) {
+				document.querySelector('.cart-header__all-body').classList.toggle('_active');
 			}
 			e.preventDefault();
-		} else if (!targetElement.closest('.cart-header') && !targetElement.classList.contains('actions-product__button')) {
-			document.querySelector('.cart-header').classList.remove('_active');
+		} else if (!targetElement.closest('.cart-header__button') && !targetElement.classList.contains('actions-product__button')) {
+			document.querySelector('.cart-header__all-body').classList.remove('_active');
 		}
 
-		if (targetElement.classList.contains('cart-list__delete')) {
-			const productId = targetElement.closest('.cart-list__item').dataset.cartPid;
+		if (targetElement.classList.contains('cart-header__delete')) {
+			const productId = targetElement.closest('.cart-header__item').dataset.cartPid;
 			updateCart(targetElement, productId, false);
 			e.preventDefault();
 		}
+    }
+    // header
 
-	}
-
-	// Header
-	const headerElement = document.querySelector('.header');
+    const headerElement = document.querySelector('.header');
 
 	const callback = function (entries, observer) {
 		if (entries[0].isIntersecting) {
@@ -1218,7 +694,7 @@ window.onload = function () {
 
 			let productTemplateImage = `
 		<a href="${productUrl}" class="item-product__image _ibg">
-			<img src="img/products/${productImage}" alt="${productTitle}">
+			<img src="img/main/${productImage}" alt="${productTitle}">
 		</a>
 	`;
 
@@ -1281,7 +757,7 @@ window.onload = function () {
 			productButton.classList.add('_hold');
 			productButton.classList.add('_fly');
 
-			const cart = document.querySelector('.cart-header__icon');
+			const cart = document.querySelector('.cart-header__button');
 			const product = document.querySelector(`[data-pid="${productId}"]`);
 			const productImage = product.querySelector('.item-product__image');
 
@@ -1327,10 +803,10 @@ window.onload = function () {
 
 	function updateCart(productButton, productId, productAdd = true) {
 		const cart = document.querySelector('.cart-header');
-		const cartIcon = cart.querySelector('.cart-header__icon');
+		const cartIcon = cart.querySelector('.cart-header__button');
 		const cartQuantity = cartIcon.querySelector('span');
 		const cartProduct = document.querySelector(`[data-cart-pid="${productId}"]`);
-		const cartList = document.querySelector('.cart-list');
+		const cartList = document.querySelector('.cart-header__list');
 
 		//Добавляем
 		if (productAdd) {
@@ -1344,22 +820,22 @@ window.onload = function () {
 				const cartProductImage = product.querySelector('.item-product__image').innerHTML;
 				const cartProductTitle = product.querySelector('.item-product__title').innerHTML;
 				const cartProductContent = `
-			<a href="" class="cart-list__image _ibg">${cartProductImage}</a>
-			<div class="cart-list__body">
-				<a href="" class="cart-list__title">${cartProductTitle}</a>
-				<div class="cart-list__quantity">Quantity: <span>1</span></div>
-				<a href="" class="cart-list__delete">Delete</a>
+			<a href="" class="cart-header__image _ibg">${cartProductImage}</a>
+			<div class="cart-header__body">
+				<a href="" class="cart-header__title">${cartProductTitle}</a>
+				<div class="cart-header__quantity">Quantity: <span>1</span></div>
+				<a href="" class="cart-header__delete">Delete</a>
 			</div>`;
-				cartList.insertAdjacentHTML('beforeend', `<li data-cart-pid="${productId}" class="cart-list__item">${cartProductContent}</li>`);
+				cartList.insertAdjacentHTML('beforeend', `<li data-cart-pid="${productId}" class="cart-header__item">${cartProductContent}</li>`);
 			} else {
-				const cartProductQuantity = cartProduct.querySelector('.cart-list__quantity span');
+				const cartProductQuantity = cartProduct.querySelector('.cart-header__quantity span');
 				cartProductQuantity.innerHTML = ++cartProductQuantity.innerHTML;
 			}
 
 			// После всех действий
 			productButton.classList.remove('_hold');
 		} else {
-			const cartProductQuantity = cartProduct.querySelector('.cart-list__quantity span');
+			const cartProductQuantity = cartProduct.querySelector('.cart-header__quantity span');
 			cartProductQuantity.innerHTML = --cartProductQuantity.innerHTML;
 			if (!parseInt(cartProductQuantity.innerHTML)) {
 				cartProduct.remove();
@@ -1426,8 +902,6 @@ window.onload = function () {
 		});
 	}
 }
-
-
 //let btn = document.querySelectorAll('button[type="submit"],input[type="submit"]');
 let forms = document.querySelectorAll('form');
 if (forms.length > 0) {
@@ -1949,3 +1423,165 @@ if (priceSlider) {
 		priceSlider.noUiSlider.set([priceStartValue, priceEndValue]);
 	}
 }
+// Dynamic Adapt v.1
+// HTML data-da="where(uniq class name),when(breakpoint),position(digi)"
+// e.x. data-da=".item,992,2"
+// Andrikanych Yevhen 2020
+// https://www.youtube.com/c/freelancerlifestyle
+
+"use strict";
+
+
+function DynamicAdapt(type) {
+	this.type = type;
+}
+
+DynamicAdapt.prototype.init = function () {
+	const _this = this;
+	// массив объектов
+	this.оbjects = [];
+	this.daClassname = "_dynamic_adapt_";
+	// массив DOM-элементов
+	this.nodes = document.querySelectorAll("[data-da]");
+
+	// наполнение оbjects объктами
+	for (let i = 0; i < this.nodes.length; i++) {
+		const node = this.nodes[i];
+		const data = node.dataset.da.trim();
+		const dataArray = data.split(",");
+		const оbject = {};
+		оbject.element = node;
+		оbject.parent = node.parentNode;
+		оbject.destination = document.querySelector(dataArray[0].trim());
+		оbject.breakpoint = dataArray[1] ? dataArray[1].trim() : "767";
+		оbject.place = dataArray[2] ? dataArray[2].trim() : "last";
+		оbject.index = this.indexInParent(оbject.parent, оbject.element);
+		this.оbjects.push(оbject);
+	}
+
+	this.arraySort(this.оbjects);
+
+	// массив уникальных медиа-запросов
+	this.mediaQueries = Array.prototype.map.call(this.оbjects, function (item) {
+		return '(' + this.type + "-width: " + item.breakpoint + "px)," + item.breakpoint;
+	}, this);
+	this.mediaQueries = Array.prototype.filter.call(this.mediaQueries, function (item, index, self) {
+		return Array.prototype.indexOf.call(self, item) === index;
+	});
+
+	// навешивание слушателя на медиа-запрос
+	// и вызов обработчика при первом запуске
+	for (let i = 0; i < this.mediaQueries.length; i++) {
+		const media = this.mediaQueries[i];
+		const mediaSplit = String.prototype.split.call(media, ',');
+		const matchMedia = window.matchMedia(mediaSplit[0]);
+		const mediaBreakpoint = mediaSplit[1];
+
+		// массив объектов с подходящим брейкпоинтом
+		const оbjectsFilter = Array.prototype.filter.call(this.оbjects, function (item) {
+			return item.breakpoint === mediaBreakpoint;
+		});
+		matchMedia.addListener(function () {
+			_this.mediaHandler(matchMedia, оbjectsFilter);
+		});
+		this.mediaHandler(matchMedia, оbjectsFilter);
+	}
+};
+
+DynamicAdapt.prototype.mediaHandler = function (matchMedia, оbjects) {
+	if (matchMedia.matches) {
+		for (let i = 0; i < оbjects.length; i++) {
+			const оbject = оbjects[i];
+			оbject.index = this.indexInParent(оbject.parent, оbject.element);
+			this.moveTo(оbject.place, оbject.element, оbject.destination);
+		}
+	} else {
+		for (let i = 0; i < оbjects.length; i++) {
+			const оbject = оbjects[i];
+			if (оbject.element.classList.contains(this.daClassname)) {
+				this.moveBack(оbject.parent, оbject.element, оbject.index);
+			}
+		}
+	}
+};
+
+// Функция перемещения
+DynamicAdapt.prototype.moveTo = function (place, element, destination) {
+	element.classList.add(this.daClassname);
+	if (place === 'last' || place >= destination.children.length) {
+		destination.insertAdjacentElement('beforeend', element);
+		return;
+	}
+	if (place === 'first') {
+		destination.insertAdjacentElement('afterbegin', element);
+		return;
+	}
+	destination.children[place].insertAdjacentElement('beforebegin', element);
+}
+
+// Функция возврата
+DynamicAdapt.prototype.moveBack = function (parent, element, index) {
+	element.classList.remove(this.daClassname);
+	if (parent.children[index] !== undefined) {
+		parent.children[index].insertAdjacentElement('beforebegin', element);
+	} else {
+		parent.insertAdjacentElement('beforeend', element);
+	}
+}
+
+// Функция получения индекса внутри родителя
+DynamicAdapt.prototype.indexInParent = function (parent, element) {
+	const array = Array.prototype.slice.call(parent.children);
+	return Array.prototype.indexOf.call(array, element);
+};
+
+// Функция сортировки массива по breakpoint и place 
+// по возрастанию для this.type = min
+// по убыванию для this.type = max
+DynamicAdapt.prototype.arraySort = function (arr) {
+	if (this.type === "min") {
+		Array.prototype.sort.call(arr, function (a, b) {
+			if (a.breakpoint === b.breakpoint) {
+				if (a.place === b.place) {
+					return 0;
+				}
+
+				if (a.place === "first" || b.place === "last") {
+					return -1;
+				}
+
+				if (a.place === "last" || b.place === "first") {
+					return 1;
+				}
+
+				return a.place - b.place;
+			}
+
+			return a.breakpoint - b.breakpoint;
+		});
+	} else {
+		Array.prototype.sort.call(arr, function (a, b) {
+			if (a.breakpoint === b.breakpoint) {
+				if (a.place === b.place) {
+					return 0;
+				}
+
+				if (a.place === "first" || b.place === "last") {
+					return 1;
+				}
+
+				if (a.place === "last" || b.place === "first") {
+					return -1;
+				}
+
+				return b.place - a.place;
+			}
+
+			return b.breakpoint - a.breakpoint;
+		});
+		return;
+	}
+};
+
+const da = new DynamicAdapt("max");
+da.init();
